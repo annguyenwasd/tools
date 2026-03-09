@@ -14,9 +14,9 @@ export function usePokerSession(sessionId, userId) {
     const metaRef = ref(db, `poker/${sessionId}/meta`);
     return onValue(metaRef, (snap) => {
       const data = snap.val();
-      if (!data && wasLoaded) setEnded(true);
+      if (data?.ended || (!data && wasLoaded)) setEnded(true);
       if (data) wasLoaded = true;
-      setMeta(data);
+      setMeta(data?.ended ? null : data);
       setLoading(false);
     });
   }, [sessionId]);
@@ -80,7 +80,8 @@ export function usePokerSession(sessionId, userId) {
   }, [sessionId]);
 
   const endSession = useCallback(() => {
-    remove(ref(db, `poker/${sessionId}`));
+    update(ref(db, `poker/${sessionId}/meta`), { ended: true });
+    setTimeout(() => remove(ref(db, `poker/${sessionId}`)), 5000);
   }, [sessionId]);
 
   const isHost = meta?.hostId === userId;

@@ -16,9 +16,9 @@ export function useSession(sessionId, userId) {
     const metaRef = ref(db, `sessions/${sessionId}/meta`);
     const unsubMeta = onValue(metaRef, (snap) => {
       const data = snap.val();
-      if (!data && wasLoaded) setEnded(true);
+      if (data?.ended || (!data && wasLoaded)) setEnded(true);
       if (data) wasLoaded = true;
-      setMeta(data);
+      setMeta(data?.ended ? null : data);
       setLoading(false);
     });
     return unsubMeta;
@@ -84,7 +84,8 @@ export function useSession(sessionId, userId) {
   }, [sessionId]);
 
   const endSession = useCallback(() => {
-    remove(ref(db, `sessions/${sessionId}`));
+    update(ref(db, `sessions/${sessionId}/meta`), { ended: true });
+    setTimeout(() => remove(ref(db, `sessions/${sessionId}`)), 5000);
   }, [sessionId]);
 
   const isHost = meta?.hostId === userId;
