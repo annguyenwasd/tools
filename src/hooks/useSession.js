@@ -80,6 +80,7 @@ export function useSession(sessionId, userId) {
   }, [sessionId]);
 
   const transferHost = useCallback((newHostId) => {
+    localStorage.removeItem(`retro_host_${sessionId}`);
     update(ref(db, `sessions/${sessionId}/meta`), { hostId: newHostId });
   }, [sessionId]);
 

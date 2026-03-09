@@ -76,6 +76,7 @@ export function usePokerSession(sessionId, userId) {
   }, [sessionId]);
 
   const transferHost = useCallback((newHostId) => {
+    localStorage.removeItem(`poker_host_${sessionId}`);
     update(ref(db, `poker/${sessionId}/meta`), { hostId: newHostId });
   }, [sessionId]);
 
