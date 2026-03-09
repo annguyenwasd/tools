@@ -29,6 +29,17 @@ export function usePokerSession(sessionId, userId) {
     });
   }, [sessionId]);
 
+  // Reclaim host on reconnect if this user was the original host
+  useEffect(() => {
+    if (!sessionId || !meta || !members || !userId) return;
+    const myInfo = members[userId];
+    if (!myInfo?.online) return;
+    const wasOriginalHost = localStorage.getItem(`poker_host_${sessionId}`) === userId;
+    if (wasOriginalHost && meta.hostId !== userId) {
+      update(ref(db, `poker/${sessionId}/meta`), { hostId: userId });
+    }
+  }, [members, meta, sessionId, userId]);
+
   // Auto-elect new host if current host goes offline
   useEffect(() => {
     if (!sessionId || !meta || !members || !userId) return;

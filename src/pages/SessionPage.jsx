@@ -14,6 +14,7 @@ import StopCircleIcon from '@mui/icons-material/StopCircle';
 
 import { useSession } from '../hooks/useSession';
 import { usePresence } from '../hooks/usePresence';
+import { useFirebaseConnection } from '../hooks/useFirebaseConnection';
 import { useCards } from '../hooks/useCards';
 
 import PhaseNav from '../components/PhaseNav';
@@ -67,6 +68,7 @@ export default function SessionPage() {
   );
 
   usePresence(sessionId, userInfo?.userId, userInfo?.name);
+  const connected = useFirebaseConnection();
 
   const { cards, addCard, deleteCard, toggleVote, getVoteCount, hasVoted, getUserVoteCount } = useCards(
     sessionId,
@@ -216,6 +218,9 @@ export default function SessionPage() {
 
         {/* Main content */}
         <Box sx={{ flex: 1, overflowY: 'auto', p: { xs: 2, md: 3 } }}>
+          {!connected && (
+            <Alert severity="warning" sx={{ mb: 2 }}>Reconnecting to server…</Alert>
+          )}
           <PhaseNav phase={meta.phase} isHost={isHost} onAdvance={advancePhase} onGoToPhase={goToPhase} />
           <Divider sx={{ mb: 3 }} />
 

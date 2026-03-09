@@ -45,6 +45,7 @@ export default function LandingPage() {
     const sessionId = uuidv4();
     const userId = uuidv4();
     localStorage.setItem(`retro_user_${sessionId}`, JSON.stringify({ userId, name: hostName.trim() }));
+    localStorage.setItem(`retro_host_${sessionId}`, userId);
     const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000));
     try {
       await Promise.race([createSession(sessionId, userId, hostName.trim(), categories), timeout]);

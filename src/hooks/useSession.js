@@ -33,6 +33,17 @@ export function useSession(sessionId, userId) {
     return unsubMembers;
   }, [sessionId]);
 
+  // Reclaim host on reconnect if this user was the original host
+  useEffect(() => {
+    if (!sessionId || !meta || !members || !userId) return;
+    const myInfo = members[userId];
+    if (!myInfo?.online) return;
+    const wasOriginalHost = localStorage.getItem(`retro_host_${sessionId}`) === userId;
+    if (wasOriginalHost && meta.hostId !== userId) {
+      update(ref(db, `sessions/${sessionId}/meta`), { hostId: userId });
+    }
+  }, [members, meta, sessionId, userId]);
+
   // Auto-elect new host if current host goes offline
   useEffect(() => {
     if (!sessionId || !meta || !members || !userId) return;
@@ -48,7 +59,6 @@ export function useSession(sessionId, userId) {
       if (onlineMembers.length === 0) return;
       onlineMembers.sort((a, b) => a[1].joinedAt - b[1].joinedAt);
       const newHostId = onlineMembers[0][0];
-      // Only the member with smallest joinedAt should write to avoid race
       const myJoinedAt = members[userId]?.joinedAt;
       const smallestJoinedAt = onlineMembers[0][1].joinedAt;
       if (myJoinedAt === smallestJoinedAt) {

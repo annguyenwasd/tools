@@ -36,6 +36,7 @@ export default function PokerLandingPage() {
     const sessionId = uuidv4();
     const userId = uuidv4();
     localStorage.setItem(`poker_user_${sessionId}`, JSON.stringify({ userId, name: hostName.trim() }));
+    localStorage.setItem(`poker_host_${sessionId}`, userId);
     const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000));
     try {
       await Promise.race([
