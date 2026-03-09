@@ -25,9 +25,6 @@ import VotingCards from '../../components/poker/VotingCards';
 import ResultPanel from '../../components/poker/ResultPanel';
 import ExportDialog from '../../components/poker/ExportDialog';
 
-function getInitials(name) {
-  return name ? name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase() : '?';
-}
 
 function getUserInfo(sessionId) {
   try {
@@ -152,8 +149,8 @@ export default function PokerSessionPage() {
         return (
           <Tooltip key={uid} title={`${member.name}: ${hasVoted ? (revealed ? votes[uid] : 'voted') : 'pending'}`}>
             <Stack alignItems="center" spacing={0.5}>
-              <Avatar sx={{ width: 36, height: 36, bgcolor: hasVoted ? 'primary.main' : 'grey.300' }}>
-                {getInitials(member.name)}
+              <Avatar sx={{ width: 36, height: 36, bgcolor: hasVoted ? 'primary.main' : 'grey.300', fontSize: '0.65rem' }}>
+                {member.name}
               </Avatar>
               {hasVoted
                 ? <CheckCircleIcon sx={{ fontSize: 14 }} color="primary" />

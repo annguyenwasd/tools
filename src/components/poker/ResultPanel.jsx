@@ -4,9 +4,6 @@ import {
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
-function getInitials(name) {
-  return name ? name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase() : '?';
-}
 
 function computeStats(votes, members) {
   const entries = Object.entries(votes).map(([userId, value]) => ({
@@ -50,8 +47,8 @@ export default function ResultPanel({ votes, members, isHost, onConfirmEstimate,
         {entries.map(({ userId, name, value }) => (
           <Grid item key={userId}>
             <Stack alignItems="center" spacing={0.5}>
-              <Avatar sx={{ width: 40, height: 40, bgcolor: 'primary.light' }}>
-                {getInitials(name)}
+              <Avatar sx={{ width: 40, height: 40, bgcolor: 'primary.light', fontSize: '0.65rem' }}>
+                {name}
               </Avatar>
               <Typography variant="caption" noWrap sx={{ maxWidth: 72 }}>{name}</Typography>
               <Chip label={value} size="small" variant="outlined" />
