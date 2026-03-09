@@ -2,26 +2,23 @@ import { useState, useEffect, useCallback } from 'react';
 import { ref, onValue, update, set, remove } from 'firebase/database';
 import { db } from '../firebase';
 
-const TTL_MS = 24 * 60 * 60 * 1000; // 1 day
-
 const PHASES = ['write', 'vote', 'discuss', 'export'];
 
 export function useSession(sessionId, userId) {
   const [meta, setMeta] = useState(null);
   const [members, setMembers] = useState({});
   const [loading, setLoading] = useState(true);
+  const [ended, setEnded] = useState(false);
 
   useEffect(() => {
     if (!sessionId) return;
+    let wasLoaded = false;
     const metaRef = ref(db, `sessions/${sessionId}/meta`);
     const unsubMeta = onValue(metaRef, (snap) => {
       const data = snap.val();
-      if (data && Date.now() - data.createdAt > TTL_MS) {
-        remove(ref(db, `sessions/${sessionId}`));
-        setMeta(null);
-      } else {
-        setMeta(data);
-      }
+      if (!data && wasLoaded) setEnded(true);
+      if (data) wasLoaded = true;
+      setMeta(data);
       setLoading(false);
     });
     return unsubMeta;
@@ -76,10 +73,14 @@ export function useSession(sessionId, userId) {
     update(ref(db, `sessions/${sessionId}/meta`), { hostId: newHostId });
   }, [sessionId]);
 
+  const endSession = useCallback(() => {
+    remove(ref(db, `sessions/${sessionId}`));
+  }, [sessionId]);
+
   const isHost = meta?.hostId === userId;
   const onlineMembers = Object.entries(members).filter(([, m]) => m.online);
 
-  return { meta, members, loading, isHost, onlineMembers, advancePhase, goToPhase, transferHost };
+  return { meta, members, loading, isHost, onlineMembers, ended, advancePhase, goToPhase, transferHost, endSession };
 }
 
 export async function createSession(sessionId, hostId, hostName, categories) {

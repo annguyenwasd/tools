@@ -3,13 +3,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import {
   Alert, AppBar, Avatar, Box, Button, Chip, CircularProgress,
-  Container, Divider, Drawer, IconButton, Snackbar,
+  Container, Dialog, DialogActions, DialogContent, DialogContentText,
+  DialogTitle, Divider, Drawer, IconButton, Snackbar,
   Stack, Toolbar, Tooltip, Typography, useMediaQuery, useTheme,
 } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DownloadIcon from '@mui/icons-material/Download';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PeopleIcon from '@mui/icons-material/People';
+import StopCircleIcon from '@mui/icons-material/StopCircle';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 
@@ -42,6 +44,7 @@ export default function PokerSessionPage() {
   const [userInfo, setUserInfo] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
+  const [endConfirmOpen, setEndConfirmOpen] = useState(false);
   const [copySnack, setCopySnack] = useState(false);
 
   useEffect(() => {
@@ -58,7 +61,7 @@ export default function PokerSessionPage() {
     setUserInfo(info);
   }, [sessionId, navigate]);
 
-  const { meta, members, loading, isHost, onlineMembers, selectStory, revealVotes, restartVote } = usePokerSession(
+  const { meta, members, loading, isHost, onlineMembers, ended, selectStory, revealVotes, restartVote, endSession } = usePokerSession(
     sessionId,
     userInfo?.userId
   );
@@ -76,6 +79,11 @@ export default function PokerSessionPage() {
   };
 
   const handleLeave = () => navigate('/poker');
+
+  const handleEndSession = () => {
+    endSession();
+    navigate('/poker');
+  };
 
   const handleCastVote = (value) => {
     if (!userInfo) return;
@@ -101,6 +109,18 @@ export default function PokerSessionPage() {
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <CircularProgress />
       </Box>
+    );
+  }
+
+  if (ended) {
+    return (
+      <Container maxWidth="sm" sx={{ py: 8, textAlign: 'center' }}>
+        <Typography variant="h5" gutterBottom>Session ended</Typography>
+        <Typography color="text.secondary" mb={3}>
+          The host has ended this session.
+        </Typography>
+        <Button variant="contained" onClick={() => navigate('/poker')}>Go Home</Button>
+      </Container>
     );
   }
 
@@ -173,6 +193,17 @@ export default function PokerSessionPage() {
               <DownloadIcon fontSize="small" />
             </IconButton>
           </Tooltip>
+          {isHost && (
+            <Button
+              size="small"
+              color="error"
+              startIcon={<StopCircleIcon />}
+              onClick={() => setEndConfirmOpen(true)}
+              sx={{ mr: 0.5 }}
+            >
+              End Session
+            </Button>
+          )}
           {isMobile && (
             <IconButton onClick={() => setDrawerOpen(true)}>
               <PeopleIcon />
@@ -300,6 +331,19 @@ export default function PokerSessionPage() {
         onClose={() => setExportOpen(false)}
         stories={stories}
       />
+
+      <Dialog open={endConfirmOpen} onClose={() => setEndConfirmOpen(false)}>
+        <DialogTitle>End session?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            This will permanently delete all stories, votes, and session data for everyone in the room. This cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEndConfirmOpen(false)}>Cancel</Button>
+          <Button color="error" variant="contained" onClick={handleEndSession}>End Session</Button>
+        </DialogActions>
+      </Dialog>
 
       <Snackbar
         open={copySnack}

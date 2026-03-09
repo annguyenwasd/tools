@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Box, Button, Card, CardContent, Chip, Container,
+  Alert, Box, Button, Card, CardContent, Chip, Container,
   Stack, Tab, Tabs, TextField, Typography,
 } from '@mui/material';
 import { ref, update } from 'firebase/database';
@@ -23,6 +23,7 @@ export default function PokerLandingPage() {
   const [importOpen, setImportOpen] = useState(false);
   const [importedStories, setImportedStories] = useState([]);
   const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState('');
 
   // Join form
   const [joinName, setJoinName] = useState('');
@@ -35,27 +36,33 @@ export default function PokerLandingPage() {
     const sessionId = uuidv4();
     const userId = uuidv4();
     localStorage.setItem(`poker_user_${sessionId}`, JSON.stringify({ userId, name: hostName.trim() }));
+    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000));
     try {
-      await createPokerSession(sessionId, userId, hostName.trim(), cardSet);
-      // Import stories if any were uploaded
-      if (importedStories.length > 0) {
-        const updates = {};
-        importedStories.forEach((story, i) => {
-          const key = `imported_${Date.now()}_${i}`;
-          updates[key] = {
-            formattedId: story.formattedId || '',
-            name: story.name,
-            description: story.description || '',
-            finalEstimate: story.planEstimate || '',
-            order: i,
-          };
-        });
-        await update(ref(db, `poker/${sessionId}/stories`), updates);
-      }
+      await Promise.race([
+        (async () => {
+          await createPokerSession(sessionId, userId, hostName.trim(), cardSet);
+          if (importedStories.length > 0) {
+            const updates = {};
+            importedStories.forEach((story, i) => {
+              const key = `imported_${Date.now()}_${i}`;
+              updates[key] = {
+                formattedId: story.formattedId || '',
+                name: story.name,
+                description: story.description || '',
+                finalEstimate: story.planEstimate || '',
+                order: i,
+              };
+            });
+            await update(ref(db, `poker/${sessionId}/stories`), updates);
+          }
+        })(),
+        timeout,
+      ]);
       navigate(`/poker/session/${sessionId}`);
     } catch (e) {
       console.error(e);
       setCreating(false);
+      setCreateError(e.message === 'timeout' ? 'Connection timed out. Check your network and try again.' : 'Failed to create session. Please try again.');
     }
   };
 
@@ -128,6 +135,9 @@ export default function PokerLandingPage() {
                 )}
               </Box>
 
+              {createError && (
+                <Alert severity="error" onClose={() => setCreateError('')}>{createError}</Alert>
+              )}
               <Button
                 variant="contained"
                 size="large"

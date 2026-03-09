@@ -3,12 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import {
   Alert, AppBar, Box, Button, Chip, CircularProgress,
-  Container, Divider, Drawer, IconButton, Snackbar,
+  Container, Dialog, DialogActions, DialogContent, DialogContentText,
+  DialogTitle, Divider, Drawer, IconButton, Snackbar,
   Toolbar, Tooltip, Typography, useMediaQuery, useTheme,
 } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PeopleIcon from '@mui/icons-material/People';
+import StopCircleIcon from '@mui/icons-material/StopCircle';
 
 import { useSession } from '../hooks/useSession';
 import { usePresence } from '../hooks/usePresence';
@@ -41,6 +43,7 @@ export default function SessionPage() {
   const [userInfo, setUserInfo] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
+  const [endConfirmOpen, setEndConfirmOpen] = useState(false);
   const [copySnack, setCopySnack] = useState(false);
 
   // Load or create user info
@@ -58,7 +61,7 @@ export default function SessionPage() {
     setUserInfo(info);
   }, [sessionId, navigate]);
 
-  const { meta, members, loading, isHost, onlineMembers, advancePhase, goToPhase, transferHost } = useSession(
+  const { meta, members, loading, isHost, onlineMembers, ended, advancePhase, goToPhase, transferHost, endSession } = useSession(
     sessionId,
     userInfo?.userId
   );
@@ -83,6 +86,11 @@ export default function SessionPage() {
     }
   };
 
+  const handleEndSession = () => {
+    endSession();
+    navigate('/retro');
+  };
+
   const handleTransfer = (newHostId) => {
     transferHost(newHostId);
     setTransferOpen(false);
@@ -96,6 +104,18 @@ export default function SessionPage() {
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <CircularProgress />
       </Box>
+    );
+  }
+
+  if (ended) {
+    return (
+      <Container maxWidth="sm" sx={{ py: 8, textAlign: 'center' }}>
+        <Typography variant="h5" gutterBottom>Session ended</Typography>
+        <Typography color="text.secondary" mb={3}>
+          The host has ended this session.
+        </Typography>
+        <Button variant="contained" onClick={() => navigate('/retro')}>Go Home</Button>
+      </Container>
     );
   }
 
@@ -145,6 +165,17 @@ export default function SessionPage() {
             <IconButton onClick={() => setDrawerOpen(true)}>
               <PeopleIcon />
             </IconButton>
+          )}
+          {isHost && (
+            <Button
+              size="small"
+              color="error"
+              startIcon={<StopCircleIcon />}
+              onClick={() => setEndConfirmOpen(true)}
+              sx={{ ml: 1 }}
+            >
+              End Session
+            </Button>
           )}
           <Button
             size="small"
@@ -238,6 +269,19 @@ export default function SessionPage() {
         members={members}
         currentUserId={userInfo.userId}
       />
+
+      <Dialog open={endConfirmOpen} onClose={() => setEndConfirmOpen(false)}>
+        <DialogTitle>End session?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            This will permanently delete all cards, votes, and session data for everyone in the room. This cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEndConfirmOpen(false)}>Cancel</Button>
+          <Button color="error" variant="contained" onClick={handleEndSession}>End Session</Button>
+        </DialogActions>
+      </Dialog>
 
       <Snackbar
         open={copySnack}

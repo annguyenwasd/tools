@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Box, Button, Card, CardContent, Chip, Container, Divider,
+  Alert, Box, Button, Card, CardContent, Chip, Container, Divider,
   IconButton, Stack, Tab, Tabs, TextField, Typography,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -26,6 +26,7 @@ export default function LandingPage() {
   const [customCategories, setCustomCategories] = useState(['']);
   const [useCustom, setUseCustom] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState('');
 
   // Join form
   const [joinName, setJoinName] = useState('');
@@ -40,15 +41,18 @@ export default function LandingPage() {
     if (categories.length === 0) return;
 
     setCreating(true);
+    setCreateError('');
     const sessionId = uuidv4();
     const userId = uuidv4();
     localStorage.setItem(`retro_user_${sessionId}`, JSON.stringify({ userId, name: hostName.trim() }));
+    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000));
     try {
-      await createSession(sessionId, userId, hostName.trim(), categories);
+      await Promise.race([createSession(sessionId, userId, hostName.trim(), categories), timeout]);
       navigate(`/retro/session/${sessionId}`);
     } catch (e) {
       console.error(e);
       setCreating(false);
+      setCreateError(e.message === 'timeout' ? 'Connection timed out. Check your network and try again.' : 'Failed to create session. Please try again.');
     }
   };
 
@@ -157,6 +161,9 @@ export default function LandingPage() {
                 )}
               </Box>
 
+              {createError && (
+                <Alert severity="error" onClose={() => setCreateError('')}>{createError}</Alert>
+              )}
               <Button
                 variant="contained"
                 size="large"
