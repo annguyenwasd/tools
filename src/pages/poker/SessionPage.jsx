@@ -63,7 +63,7 @@ export default function PokerSessionPage() {
     setUserInfo(info);
   }, [sessionId, navigate]);
 
-  const { meta, members, loading, isHost, onlineMembers, ended, selectStory, revealVotes, restartVote, endSession } = usePokerSession(
+  const { meta, members, loading, isHost, onlineMembers, ended, selectStory, revealVotes, restartVote, transferHost, endSession } = usePokerSession(
     sessionId,
     userInfo?.userId
   );
