@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import LogoutIcon from '@mui/icons-material/Logout';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import PeopleIcon from '@mui/icons-material/People';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 
@@ -45,6 +46,7 @@ export default function SessionPage() {
   const [userInfo, setUserInfo] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
+  const [assignOpen, setAssignOpen] = useState(false);
   const [endConfirmOpen, setEndConfirmOpen] = useState(false);
   const [copySnack, setCopySnack] = useState(false);
 
@@ -171,15 +173,25 @@ export default function SessionPage() {
             </IconButton>
           )}
           {isHost && (
-            <Button
-              size="small"
-              color="error"
-              startIcon={<StopCircleIcon />}
-              onClick={() => setEndConfirmOpen(true)}
-              sx={{ ml: 1 }}
-            >
-              End Session
-            </Button>
+            <>
+              <Button
+                size="small"
+                startIcon={<ManageAccountsIcon />}
+                onClick={() => setAssignOpen(true)}
+                sx={{ ml: 1 }}
+              >
+                Assign Host
+              </Button>
+              <Button
+                size="small"
+                color="error"
+                startIcon={<StopCircleIcon />}
+                onClick={() => setEndConfirmOpen(true)}
+                sx={{ ml: 1 }}
+              >
+                End Session
+              </Button>
+            </>
           )}
           <Button
             size="small"
@@ -288,6 +300,15 @@ export default function SessionPage() {
         onTransfer={handleTransfer}
         members={members}
         currentUserId={userInfo.userId}
+      />
+
+      <HostTransferDialog
+        open={assignOpen}
+        onClose={() => setAssignOpen(false)}
+        onTransfer={(uid) => { transferHost(uid); setAssignOpen(false); }}
+        members={members}
+        currentUserId={userInfo.userId}
+        description="Select a member to assign as the new host."
       />
 
       <Dialog open={endConfirmOpen} onClose={() => setEndConfirmOpen(false)}>

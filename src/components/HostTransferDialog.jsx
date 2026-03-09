@@ -12,7 +12,7 @@ function stringToColor(str) {
   return `hsl(${Math.abs(hash) % 360}, 60%, 45%)`;
 }
 
-export default function HostTransferDialog({ open, onClose, onTransfer, members, currentUserId }) {
+export default function HostTransferDialog({ open, onClose, onTransfer, members, currentUserId, description }) {
   const candidates = Object.entries(members).filter(
     ([uid, m]) => uid !== currentUserId && m.online
   );
@@ -22,7 +22,7 @@ export default function HostTransferDialog({ open, onClose, onTransfer, members,
       <DialogTitle>Transfer Host Role</DialogTitle>
       <DialogContent>
         <Typography variant="body2" color="text.secondary" mb={2}>
-          Select a member to become the new host before you leave.
+          {description ?? 'Select a member to become the new host before you leave.'}
         </Typography>
         {candidates.length === 0 ? (
           <Typography variant="body2" color="warning.main">

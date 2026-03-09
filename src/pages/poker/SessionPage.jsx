@@ -10,6 +10,7 @@ import {
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DownloadIcon from '@mui/icons-material/Download';
 import LogoutIcon from '@mui/icons-material/Logout';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import PeopleIcon from '@mui/icons-material/People';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -24,6 +25,7 @@ import StoryList, { STORY_LIST_WIDTH } from '../../components/poker/StoryList';
 import VotingCards from '../../components/poker/VotingCards';
 import ResultPanel from '../../components/poker/ResultPanel';
 import ExportDialog from '../../components/poker/ExportDialog';
+import HostTransferDialog from '../../components/HostTransferDialog';
 
 
 function getUserInfo(sessionId) {
@@ -43,6 +45,7 @@ export default function PokerSessionPage() {
   const [userInfo, setUserInfo] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
+  const [assignOpen, setAssignOpen] = useState(false);
   const [endConfirmOpen, setEndConfirmOpen] = useState(false);
   const [copySnack, setCopySnack] = useState(false);
 
@@ -195,15 +198,25 @@ export default function PokerSessionPage() {
             </IconButton>
           </Tooltip>
           {isHost && (
-            <Button
-              size="small"
-              color="error"
-              startIcon={<StopCircleIcon />}
-              onClick={() => setEndConfirmOpen(true)}
-              sx={{ mr: 0.5 }}
-            >
-              End Session
-            </Button>
+            <>
+              <Button
+                size="small"
+                startIcon={<ManageAccountsIcon />}
+                onClick={() => setAssignOpen(true)}
+                sx={{ mr: 0.5 }}
+              >
+                Assign Host
+              </Button>
+              <Button
+                size="small"
+                color="error"
+                startIcon={<StopCircleIcon />}
+                onClick={() => setEndConfirmOpen(true)}
+                sx={{ mr: 0.5 }}
+              >
+                End Session
+              </Button>
+            </>
           )}
           {isMobile && (
             <IconButton onClick={() => setDrawerOpen(true)}>
@@ -342,6 +355,15 @@ export default function PokerSessionPage() {
           )}
         </Box>
       </Box>
+
+      <HostTransferDialog
+        open={assignOpen}
+        onClose={() => setAssignOpen(false)}
+        onTransfer={(uid) => { transferHost(uid); setAssignOpen(false); }}
+        members={members}
+        currentUserId={userInfo.userId}
+        description="Select a member to assign as the new host."
+      />
 
       <ExportDialog
         open={exportOpen}
