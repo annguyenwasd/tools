@@ -140,6 +140,9 @@ export default function PokerSessionPage() {
     );
   }
 
+  const getInitials = (name) =>
+    name.trim().split(/\s+/).map((w) => w[0].toUpperCase()).slice(0, 2).join('');
+
   const shortCode = sessionId.slice(0, 6).toUpperCase();
   const currentStory = meta.currentStoryId ? stories[meta.currentStoryId] : null;
   const myVote = meta.currentStoryId ? votes[userInfo.userId] : null;
@@ -152,9 +155,12 @@ export default function PokerSessionPage() {
         return (
           <Tooltip key={uid} title={`${member.name}: ${hasVoted ? (revealed ? votes[uid] : 'voted') : 'pending'}`}>
             <Stack alignItems="center" spacing={0.5}>
-              <Avatar sx={{ width: 36, height: 36, bgcolor: hasVoted ? 'primary.main' : 'grey.300', fontSize: '0.65rem' }}>
-                {member.name}
+              <Avatar sx={{ width: 36, height: 36, bgcolor: hasVoted ? 'primary.main' : 'grey.300' }}>
+                {getInitials(member.name)}
               </Avatar>
+              <Typography variant="caption" noWrap sx={{ maxWidth: 64, fontSize: '0.65rem' }}>
+                {member.name}
+              </Typography>
               {hasVoted
                 ? <CheckCircleIcon sx={{ fontSize: 14 }} color="primary" />
                 : <HourglassEmptyIcon sx={{ fontSize: 14 }} color="disabled" />}
