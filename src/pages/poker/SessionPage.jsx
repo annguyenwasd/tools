@@ -1,0 +1,307 @@
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
+import {
+  Alert, AppBar, Avatar, Box, Button, Chip, CircularProgress,
+  Container, Divider, Drawer, IconButton, Snackbar,
+  Stack, Toolbar, Tooltip, Typography, useMediaQuery, useTheme,
+} from '@mui/material';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import DownloadIcon from '@mui/icons-material/Download';
+import LogoutIcon from '@mui/icons-material/Logout';
+import PeopleIcon from '@mui/icons-material/People';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+
+import { usePokerSession } from '../../hooks/poker/usePokerSession';
+import { usePokerVoting } from '../../hooks/poker/usePokerVoting';
+import { usePresence } from '../../hooks/usePresence';
+import StoryList, { STORY_LIST_WIDTH } from '../../components/poker/StoryList';
+import VotingCards from '../../components/poker/VotingCards';
+import ResultPanel from '../../components/poker/ResultPanel';
+import ExportDialog from '../../components/poker/ExportDialog';
+
+function getInitials(name) {
+  return name ? name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase() : '?';
+}
+
+function getUserInfo(sessionId) {
+  try {
+    const stored = localStorage.getItem(`poker_user_${sessionId}`);
+    if (stored) return JSON.parse(stored);
+  } catch {}
+  return null;
+}
+
+export default function PokerSessionPage() {
+  const { sessionId } = useParams();
+  const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  const [userInfo, setUserInfo] = useState(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [copySnack, setCopySnack] = useState(false);
+
+  useEffect(() => {
+    let info = getUserInfo(sessionId);
+    if (!info) {
+      const name = prompt('Enter your name to join this session:');
+      if (!name?.trim()) {
+        navigate('/poker');
+        return;
+      }
+      info = { userId: uuidv4(), name: name.trim() };
+      localStorage.setItem(`poker_user_${sessionId}`, JSON.stringify(info));
+    }
+    setUserInfo(info);
+  }, [sessionId, navigate]);
+
+  const { meta, members, loading, isHost, onlineMembers, selectStory, revealVotes, restartVote } = usePokerSession(
+    sessionId,
+    userInfo?.userId
+  );
+
+  usePresence(sessionId, userInfo?.userId, userInfo?.name, 'poker');
+
+  const { stories, votes, addStory, importStories, setFinalEstimate, castVote, clearVotes, deleteStory } = usePokerVoting(
+    sessionId,
+    meta?.currentStoryId
+  );
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(sessionId);
+    setCopySnack(true);
+  };
+
+  const handleLeave = () => navigate('/poker');
+
+  const handleCastVote = (value) => {
+    if (!userInfo) return;
+    castVote(userInfo.userId, value);
+  };
+
+  const handleConfirmEstimate = async (estimate) => {
+    if (!meta?.currentStoryId) return;
+    await setFinalEstimate(meta.currentStoryId, estimate);
+  };
+
+  const handleReVote = async () => {
+    await clearVotes();
+    restartVote();
+  };
+
+  const handleReveal = () => revealVotes();
+
+  if (!userInfo) return null;
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!meta) {
+    return (
+      <Container maxWidth="sm" sx={{ py: 8, textAlign: 'center' }}>
+        <Typography variant="h5" gutterBottom>Session not found</Typography>
+        <Typography color="text.secondary" mb={3}>
+          This session does not exist or has expired.
+        </Typography>
+        <Button variant="contained" onClick={() => navigate('/poker')}>Go Home</Button>
+      </Container>
+    );
+  }
+
+  const shortCode = sessionId.slice(0, 6).toUpperCase();
+  const currentStory = meta.currentStoryId ? stories[meta.currentStoryId] : null;
+  const myVote = meta.currentStoryId ? votes[userInfo.userId] : null;
+  const revealed = meta.revealed;
+
+  const voteStatusRow = meta.currentStoryId && (
+    <Stack direction="row" flexWrap="wrap" gap={1} mb={2}>
+      {onlineMembers.map(([uid, member]) => {
+        const hasVoted = !!votes[uid];
+        return (
+          <Tooltip key={uid} title={`${member.name}: ${hasVoted ? (revealed ? votes[uid] : 'voted') : 'pending'}`}>
+            <Stack alignItems="center" spacing={0.5}>
+              <Avatar sx={{ width: 36, height: 36, bgcolor: hasVoted ? 'primary.main' : 'grey.300' }}>
+                {getInitials(member.name)}
+              </Avatar>
+              {hasVoted
+                ? <CheckCircleIcon sx={{ fontSize: 14 }} color="primary" />
+                : <HourglassEmptyIcon sx={{ fontSize: 14 }} color="disabled" />}
+            </Stack>
+          </Tooltip>
+        );
+      })}
+    </Stack>
+  );
+
+  const storyListContent = (
+    <StoryList
+      stories={stories}
+      currentStoryId={meta.currentStoryId}
+      isHost={isHost}
+      onSelectStory={selectStory}
+      onAddStory={addStory}
+      onImportStories={importStories}
+      onDeleteStory={deleteStory}
+    />
+  );
+
+  return (
+    <Box sx={{ display: 'flex', height: '100vh', flexDirection: 'column' }}>
+      <AppBar position="static" elevation={1} color="default">
+        <Toolbar variant="dense">
+          <Typography variant="h6" fontWeight={700} sx={{ mr: 1 }}>
+            Poker
+          </Typography>
+          <Chip label={shortCode} size="small" sx={{ mr: 'auto' }} />
+          <Chip
+            icon={<PeopleIcon sx={{ fontSize: '1rem !important' }} />}
+            label={onlineMembers.length}
+            size="small"
+            variant="outlined"
+            sx={{ mr: 1 }}
+          />
+          <Tooltip title="Export estimates">
+            <IconButton size="small" onClick={() => setExportOpen(true)} sx={{ mr: 0.5 }}>
+              <DownloadIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          {isMobile && (
+            <IconButton onClick={() => setDrawerOpen(true)}>
+              <PeopleIcon />
+            </IconButton>
+          )}
+          <Tooltip title="Copy session ID">
+            <IconButton size="small" onClick={handleCopyCode} sx={{ mr: 1 }}>
+              <ContentCopyIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Button size="small" startIcon={<LogoutIcon />} onClick={handleLeave}>
+            Leave
+          </Button>
+        </Toolbar>
+      </AppBar>
+
+      <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        {/* Sidebar — desktop */}
+        {!isMobile && (
+          <Box
+            sx={{
+              width: STORY_LIST_WIDTH,
+              borderRight: '1px solid',
+              borderColor: 'divider',
+              overflowY: 'auto',
+              flexShrink: 0,
+            }}
+          >
+            {storyListContent}
+          </Box>
+        )}
+
+        {/* Mobile drawer */}
+        <Drawer
+          anchor="left"
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          PaperProps={{ sx: { width: STORY_LIST_WIDTH } }}
+        >
+          {storyListContent}
+        </Drawer>
+
+        {/* Main content */}
+        <Box sx={{ flex: 1, overflowY: 'auto', p: { xs: 2, md: 3 } }}>
+          {isMobile && (
+            <Button
+              size="small"
+              startIcon={<PeopleIcon />}
+              onClick={() => setDrawerOpen(true)}
+              sx={{ mb: 2 }}
+            >
+              Stories
+            </Button>
+          )}
+
+          {!currentStory && (
+            <Box sx={{ textAlign: 'center', mt: 8 }}>
+              <Typography variant="h6" color="text.secondary">
+                {isHost
+                  ? 'Select a story from the sidebar to begin'
+                  : 'Waiting for the host to select a story…'}
+              </Typography>
+            </Box>
+          )}
+
+          {currentStory && (
+            <Box>
+              <Typography variant="h6" fontWeight={700} gutterBottom>
+                {currentStory.formattedId && (
+                  <Chip label={currentStory.formattedId} size="small" sx={{ mr: 1 }} />
+                )}
+                {currentStory.name}
+              </Typography>
+              {currentStory.description && (
+                <Typography color="text.secondary" mb={2}>{currentStory.description}</Typography>
+              )}
+              <Divider sx={{ mb: 2 }} />
+
+              {voteStatusRow}
+
+              {!revealed && (
+                <>
+                  <VotingCards
+                    cardSet={meta.cardSet}
+                    selectedValue={myVote}
+                    onSelect={handleCastVote}
+                    disabled={false}
+                  />
+
+                  {isHost && (
+                    <Box mt={3}>
+                      <Button
+                        variant="contained"
+                        onClick={handleReveal}
+                        disabled={Object.keys(votes).length === 0}
+                      >
+                        Reveal Votes
+                      </Button>
+                    </Box>
+                  )}
+                </>
+              )}
+
+              {revealed && (
+                <ResultPanel
+                  votes={votes}
+                  members={members}
+                  isHost={isHost}
+                  onConfirmEstimate={handleConfirmEstimate}
+                  onReVote={handleReVote}
+                />
+              )}
+            </Box>
+          )}
+        </Box>
+      </Box>
+
+      <ExportDialog
+        open={exportOpen}
+        onClose={() => setExportOpen(false)}
+        stories={stories}
+      />
+
+      <Snackbar
+        open={copySnack}
+        autoHideDuration={2000}
+        onClose={() => setCopySnack(false)}
+        message="Session ID copied to clipboard"
+      />
+    </Box>
+  );
+}
