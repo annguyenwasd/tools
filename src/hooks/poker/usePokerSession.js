@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ref, onValue, update, set } from 'firebase/database';
+import { ref, onValue, update, set, remove } from 'firebase/database';
 import { db } from '../../firebase';
+
+const TTL_MS = 24 * 60 * 60 * 1000; // 1 day
 
 export function usePokerSession(sessionId, userId) {
   const [meta, setMeta] = useState(null);
@@ -11,7 +13,13 @@ export function usePokerSession(sessionId, userId) {
     if (!sessionId) return;
     const metaRef = ref(db, `poker/${sessionId}/meta`);
     return onValue(metaRef, (snap) => {
-      setMeta(snap.val());
+      const data = snap.val();
+      if (data && Date.now() - data.createdAt > TTL_MS) {
+        remove(ref(db, `poker/${sessionId}`));
+        setMeta(null);
+      } else {
+        setMeta(data);
+      }
       setLoading(false);
     });
   }, [sessionId]);

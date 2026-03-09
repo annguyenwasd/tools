@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ref, onValue, update, set } from 'firebase/database';
+import { ref, onValue, update, set, remove } from 'firebase/database';
 import { db } from '../firebase';
+
+const TTL_MS = 24 * 60 * 60 * 1000; // 1 day
 
 const PHASES = ['write', 'vote', 'discuss', 'export'];
 
@@ -13,7 +15,13 @@ export function useSession(sessionId, userId) {
     if (!sessionId) return;
     const metaRef = ref(db, `sessions/${sessionId}/meta`);
     const unsubMeta = onValue(metaRef, (snap) => {
-      setMeta(snap.val());
+      const data = snap.val();
+      if (data && Date.now() - data.createdAt > TTL_MS) {
+        remove(ref(db, `sessions/${sessionId}`));
+        setMeta(null);
+      } else {
+        setMeta(data);
+      }
       setLoading(false);
     });
     return unsubMeta;
