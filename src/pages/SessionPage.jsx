@@ -279,7 +279,7 @@ export default function SessionPage() {
         <DialogTitle>End session?</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            This will permanently delete all cards, votes, and session data for everyone in the room. This cannot be undone.
+            This tool holds session data only in memory for the duration of the meeting — no data is stored on our servers beyond what is needed to run the live session. Ending the session immediately clears everything from the room.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
