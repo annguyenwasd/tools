@@ -32,6 +32,12 @@ export default function HomePage() {
         Collaborative tools for agile teams
       </Typography>
 
+      <Box textAlign="center" mb={4}>
+        <Button variant="text" onClick={() => navigate('/how-to-use')}>
+          How to use these tools →
+        </Button>
+      </Box>
+
       <Grid container spacing={4} justifyContent="center">
         {APPS.map((app) => (
           <Grid item xs={12} sm={6} key={app.title}>

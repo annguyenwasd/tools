@@ -247,7 +247,12 @@ export default function PokerSessionPage() {
                 {currentStory.name}
               </Typography>
               {currentStory.description && (
-                <Typography color="text.secondary" mb={2}>{currentStory.description}</Typography>
+                <Box
+                  color="text.secondary"
+                  mb={2}
+                  sx={{ fontSize: '0.875rem', lineHeight: 1.6, '& p': { margin: 0 }, '& ul,& ol': { pl: 2 } }}
+                  dangerouslySetInnerHTML={{ __html: currentStory.description }}
+                />
               )}
               <Divider sx={{ mb: 2 }} />
 

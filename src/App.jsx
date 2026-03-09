@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage.jsx';
+import HowToUsePage from './pages/HowToUsePage.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import SessionPage from './pages/SessionPage.jsx';
 import PokerLandingPage from './pages/poker/LandingPage.jsx';
@@ -9,6 +10,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
+      <Route path="/how-to-use" element={<HowToUsePage />} />
       <Route path="/retro" element={<LandingPage />} />
       <Route path="/retro/session/:sessionId" element={<SessionPage />} />
       <Route path="/poker" element={<PokerLandingPage />} />

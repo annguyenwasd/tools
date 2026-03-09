@@ -6,7 +6,7 @@ Real-time collaborative tools for agile teams — Sprint Retrospective and Plann
 
 - [What is it](#what-is-it)
 - [Why use it](#why-use-it)
-- [Apps](#apps)
+- [How to Use](#how-to-use)
   - [Retro](#retro)
   - [Poker](#poker)
 - [Getting Started](#getting-started)
@@ -35,32 +35,59 @@ All collaboration is real-time via Firebase Realtime Database. No sign-up, no ac
 - **Rally-compatible export** — import stories from a Rally CSV export and export estimates back in the same format.
 - **Self-hostable** — bring your own Firebase project; the app is a static build deployable anywhere.
 
-## Apps
+## How to Use
 
 ### Retro
 
-1. **Create a session** — choose your name, pick a retrospective format (Start/Stop/Continue, 4Ls, etc.) or define custom categories, click *Create Session*.
-2. **Share the code** — copy the 6-character short code or the full session ID from the top bar and send it to your team.
-3. **Write phase** — everyone adds cards to each category anonymously.
-4. **Vote phase** — each member gets as many votes as there are categories; dot-vote on the cards that matter most.
-5. **Discuss phase** — cards are sorted by votes; the team discusses top items.
-6. **Export phase** — download results as JSON, Markdown, or Confluence wiki markup.
+**1. Create a session** — enter your name, pick a format, click *Create Session*.
 
-> The host controls phase transitions. If the host leaves and other members are online, host role transfers automatically.
+![Retro create form](public/screenshots/03-retro-create-form.png)
+
+**2. Write phase** — everyone adds cards to each category.
+
+![Retro write phase](public/screenshots/05-retro-write-card.png)
+
+**3. Vote phase** — cards are revealed; dot-vote on what matters most.
+
+![Retro vote phase](public/screenshots/06-retro-vote.png)
+
+**4. Discuss phase** — cards sorted by votes; team discusses top items.
+
+![Retro discuss phase](public/screenshots/07-retro-discuss.png)
+
+**5. Export** — download as JSON, Markdown, or Confluence markup.
+
+![Retro export](public/screenshots/08-retro-export.png)
+
+> The host controls phase transitions. If the host disconnects, the longest-tenured online member is automatically promoted.
+
+---
 
 ### Poker
 
-1. **Create a session** — choose your name, select a card set (Modified Fibonacci · Fibonacci · T-Shirt), optionally import a Rally CSV, click *Create Session*.
-2. **Share the code** — same as Retro.
-3. **Select a story** — the host clicks a story in the left sidebar to make it the active story.
-4. **Vote** — all members pick a card; a check mark appears next to each member's avatar as they vote.
-5. **Reveal** — the host clicks *Reveal Votes*; all cards flip simultaneously.
-6. **Confirm estimate** — the Result Panel shows individual votes, average, most common value, and a consensus indicator. The host sets the final estimate and clicks *Confirm Estimate* to save it and move on.
-7. **Export** — click the download icon in the top bar at any time to export all stories with their estimates as CSV, Markdown, or JSON.
+**1. Create a session** — choose a card set, optionally import a Rally CSV, click *Create Session*.
+
+![Poker create form](public/screenshots/10-poker-create-form.png)
+
+**2. Add stories** — use *Add Story* or *Import CSV* in the sidebar.
+
+![Poker story added](public/screenshots/12-poker-story-added.png)
+
+**3. Vote** — the host selects a story; everyone picks a card. Checkmarks show who has voted without revealing values.
+
+![Poker voting](public/screenshots/13-poker-voting.png)
+
+**4. Reveal & confirm** — host clicks *Reveal Votes*, then sets the final estimate.
+
+![Poker revealed](public/screenshots/15-poker-revealed.png)
+
+**5. Export** — download all estimates as Rally-compatible CSV, Markdown, or JSON at any time.
+
+![Poker export](public/screenshots/16-poker-export.png)
 
 #### Importing stories from Rally
 
-Export your user stories from Rally as CSV (include columns: `FormattedID`, `Name`, `Description`, `PlanEstimate`). In the Poker landing page, click *Import from CSV* before creating the session, or use the *Import CSV* button in the story sidebar during a session.
+Export your backlog from Rally as CSV (`FormattedID`, `Name`, `Description`, `PlanEstimate`). Drag the file into the import dialog — existing estimates are pre-filled. Rally's HTML description field is rendered correctly in the session view.
 
 ## Getting Started
 
