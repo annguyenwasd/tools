@@ -91,7 +91,7 @@ export default function CSVImportDialog({ open, onClose, onImport }) {
                     <TableCell>{s.formattedId}</TableCell>
                     <TableCell>{s.name}</TableCell>
                     <TableCell sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {s.description}
+                      {s.description.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()}
                     </TableCell>
                     <TableCell>{s.planEstimate}</TableCell>
                   </TableRow>
