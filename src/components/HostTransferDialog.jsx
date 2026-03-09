@@ -1,8 +1,10 @@
+import { useState, useEffect } from 'react';
 import {
   Avatar, Button, Dialog, DialogActions, DialogContent,
   DialogTitle, List, ListItem, ListItemAvatar, ListItemButton,
   ListItemText, Typography,
 } from '@mui/material';
+import CheckIcon from '@mui/icons-material/Check';
 
 function stringToColor(str) {
   let hash = 0;
@@ -13,6 +15,12 @@ function stringToColor(str) {
 }
 
 export default function HostTransferDialog({ open, onClose, onTransfer, members, currentUserId, description }) {
+  const [selected, setSelected] = useState(null);
+
+  useEffect(() => {
+    if (!open) setSelected(null);
+  }, [open]);
+
   const candidates = Object.entries(members).filter(
     ([uid, m]) => uid !== currentUserId && m.online
   );
@@ -32,13 +40,17 @@ export default function HostTransferDialog({ open, onClose, onTransfer, members,
           <List disablePadding>
             {candidates.map(([uid, member]) => (
               <ListItem key={uid} disablePadding>
-                <ListItemButton onClick={() => onTransfer(uid)}>
+                <ListItemButton
+                  selected={selected === uid}
+                  onClick={() => setSelected(uid)}
+                >
                   <ListItemAvatar>
                     <Avatar sx={{ bgcolor: stringToColor(member.name), width: 32, height: 32, fontSize: 14 }}>
                       {member.name.charAt(0).toUpperCase()}
                     </Avatar>
                   </ListItemAvatar>
                   <ListItemText primary={member.name} />
+                  {selected === uid && <CheckIcon fontSize="small" color="primary" />}
                 </ListItemButton>
               </ListItem>
             ))}
@@ -47,6 +59,13 @@ export default function HostTransferDialog({ open, onClose, onTransfer, members,
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
+        <Button
+          variant="contained"
+          disabled={!selected}
+          onClick={() => onTransfer(selected)}
+        >
+          Confirm
+        </Button>
       </DialogActions>
     </Dialog>
   );
