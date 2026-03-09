@@ -29,6 +29,13 @@ export function usePokerSession(sessionId, userId) {
     });
   }, [sessionId]);
 
+  // Persist host role so it survives a page refresh
+  useEffect(() => {
+    if (sessionId && userId && meta?.hostId === userId) {
+      localStorage.setItem(`poker_host_${sessionId}`, userId);
+    }
+  }, [meta?.hostId, userId, sessionId]);
+
   // Reclaim host on reconnect if this user was the original host
   useEffect(() => {
     if (!sessionId || !meta || !members || !userId) return;
