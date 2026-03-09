@@ -17,6 +17,7 @@ import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 
 import { usePokerSession } from '../../hooks/poker/usePokerSession';
 import { useFirebaseConnection } from '../../hooks/useFirebaseConnection';
+import { useNewVersionAvailable } from '../../hooks/useNewVersionAvailable';
 import { usePokerVoting } from '../../hooks/poker/usePokerVoting';
 import { usePresence } from '../../hooks/usePresence';
 import StoryList, { STORY_LIST_WIDTH } from '../../components/poker/StoryList';
@@ -69,6 +70,7 @@ export default function PokerSessionPage() {
 
   usePresence(sessionId, userInfo?.userId, userInfo?.name, 'poker');
   const connected = useFirebaseConnection();
+  const newVersion = useNewVersionAvailable();
 
   const { stories, votes, addStory, importStories, setFinalEstimate, castVote, clearVotes, deleteStory } = usePokerVoting(
     sessionId,
@@ -250,6 +252,19 @@ export default function PokerSessionPage() {
 
         {/* Main content */}
         <Box sx={{ flex: 1, overflowY: 'auto', p: { xs: 2, md: 3 } }}>
+          {newVersion && (
+            <Alert
+              severity="info"
+              sx={{ mb: 2 }}
+              action={
+                <Button size="small" color="inherit" onClick={() => window.location.reload()}>
+                  Reload
+                </Button>
+              }
+            >
+              A new version is available. Reload when your session is finished to update.
+            </Alert>
+          )}
           {!connected && (
             <Alert severity="warning" sx={{ mb: 2 }}>Reconnecting to server…</Alert>
           )}
