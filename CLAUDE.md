@@ -9,9 +9,9 @@ npm run dev        # start dev server (Vite HMR)
 npm run build      # production build → dist/
 npm run lint       # ESLint
 npm run preview    # serve the dist/ build locally
+npm test           # vitest watch mode
+npm run test:run   # vitest single run
 ```
-
-No test suite is configured.
 
 ## Environment
 
