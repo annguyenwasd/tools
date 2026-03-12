@@ -1,8 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import {
-  Box, Button, Container, Divider, Stack, Typography,
+  Box, Button, Container, Divider, Paper, Stack, Typography,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
 
 function Section({ title, children }) {
   return (
@@ -73,6 +75,50 @@ export default function HowToUsePage() {
       <Typography color="text.secondary" mb={6}>
         Step-by-step guide to running a Sprint Retrospective or Planning Poker session with your team.
       </Typography>
+
+      {/* ── Why this exists ── */}
+      <Section title="Why this tool exists">
+        <Typography color="text.secondary" mb={3}>
+          Built for our internal team — no fluff, no distractions, just the tools we actually need during sprints.
+        </Typography>
+        <Stack spacing={1.5}>
+          {[
+            { icon: '🔒', text: 'No ads, no tracking, no third-party analytics.' },
+            { icon: '🗑️', text: 'Nothing is persisted beyond your session. Data is automatically deleted when everyone leaves or after 24 hours.' },
+            { icon: '⚡', text: 'Lightweight and fast — designed for real team usage, not demos.' },
+          ].map(({ icon, text }) => (
+            <Stack key={text} direction="row" spacing={1.5} alignItems="flex-start">
+              <Typography sx={{ flexShrink: 0 }}>{icon}</Typography>
+              <Typography variant="body2" color="text.secondary">{text}</Typography>
+            </Stack>
+          ))}
+        </Stack>
+      </Section>
+
+      {/* ── Basic features ── */}
+      <Section title="Basic features">
+        <Stack spacing={2}>
+          <Stack direction="row" spacing={1.5} alignItems="flex-start">
+            <DarkModeIcon fontSize="small" sx={{ mt: 0.25, flexShrink: 0, color: 'text.secondary' }} />
+            <Box>
+              <Typography variant="body2" fontWeight={600}>Dark / Light mode</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Toggle between dark and light themes using the icon in the top-right corner. Your preference is saved across sessions.
+              </Typography>
+            </Box>
+          </Stack>
+        </Stack>
+      </Section>
+
+      <Paper
+        variant="outlined"
+        sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, p: 2, mb: 6, borderRadius: 2 }}
+      >
+        <InfoOutlinedIcon fontSize="small" color="info" sx={{ mt: 0.25, flexShrink: 0 }} />
+        <Typography variant="body2" color="text.secondary">
+          We don't store any personal data. Sessions are temporary and deleted automatically when everyone leaves or after 24 hours.
+        </Typography>
+      </Paper>
 
       {/* ── Retro ── */}
       <Section title="Sprint Retrospective">

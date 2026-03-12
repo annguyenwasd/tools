@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
-  Alert, Box, Button, Card, CardContent, Chip, Container,
-  Stack, Tab, Tabs, TextField, Typography,
+  Alert, Box, Breadcrumbs, Button, Card, CardContent, Chip, Container,
+  Link, Stack, Tab, Tabs, TextField, Typography,
 } from '@mui/material';
 import { ref, update } from 'firebase/database';
 import { v4 as uuidv4 } from 'uuid';
@@ -80,6 +80,12 @@ export default function PokerLandingPage() {
 
   return (
     <Container maxWidth="sm" sx={{ py: 8 }}>
+      <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
+        <Link component={RouterLink} to="/" underline="hover" color="inherit">
+          Home
+        </Link>
+        <Typography color="text.primary">Poker</Typography>
+      </Breadcrumbs>
       <Typography variant="h3" fontWeight={700} textAlign="center" gutterBottom>
         Poker
       </Typography>

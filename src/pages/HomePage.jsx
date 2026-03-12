@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import {
-  Box, Button, Card, CardContent, Container, Grid, Typography,
+  Box, Button, Card, CardContent, Container, Grid, Paper, Typography,
 } from '@mui/material';
 import StickyNote2Icon from '@mui/icons-material/StickyNote2';
 import CasinoIcon from '@mui/icons-material/Casino';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 const APPS = [
   {
@@ -28,9 +29,19 @@ export default function HomePage() {
       <Typography variant="h3" fontWeight={700} textAlign="center" gutterBottom>
         Team Tools
       </Typography>
-      <Typography variant="subtitle1" textAlign="center" color="text.secondary" mb={6}>
+      <Typography variant="subtitle1" textAlign="center" color="text.secondary" mb={2}>
         Collaborative tools for agile teams
       </Typography>
+
+      <Paper
+        variant="outlined"
+        sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, p: 2, mb: 4, borderRadius: 2 }}
+      >
+        <InfoOutlinedIcon fontSize="small" color="info" sx={{ mt: 0.25, flexShrink: 0 }} />
+        <Typography variant="body2" color="text.secondary">
+          We don't store any personal data. Sessions are temporary and deleted automatically when everyone leaves or after 24 hours.
+        </Typography>
+      </Paper>
 
       <Box textAlign="center" mb={4}>
         <Button variant="text" onClick={() => navigate('/how-to-use')}>

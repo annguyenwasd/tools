@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
-  Alert, Box, Button, Card, CardContent, Chip, Container, Divider,
-  IconButton, Stack, Tab, Tabs, TextField, Typography,
+  Alert, Box, Breadcrumbs, Button, Card, CardContent, Chip, Container, Divider,
+  IconButton, Link, Stack, Tab, Tabs, TextField, Typography,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -84,6 +84,12 @@ export default function LandingPage() {
 
   return (
     <Container maxWidth="sm" sx={{ py: 8 }}>
+      <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
+        <Link component={RouterLink} to="/" underline="hover" color="inherit">
+          Home
+        </Link>
+        <Typography color="text.primary">Retro</Typography>
+      </Breadcrumbs>
       <Typography variant="h3" fontWeight={700} textAlign="center" gutterBottom>
         Retro
       </Typography>

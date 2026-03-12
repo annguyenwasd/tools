@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import {
-  Alert, AppBar, Box, Button, Chip, CircularProgress,
+  Alert, AppBar, Box, Breadcrumbs, Button, Chip, CircularProgress,
   Container, Dialog, DialogActions, DialogContent, DialogContentText,
-  DialogTitle, Divider, Drawer, IconButton, Snackbar,
+  DialogTitle, Divider, Drawer, IconButton, Link, Snackbar,
   Toolbar, Tooltip, Typography, useMediaQuery, useTheme,
 } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -163,10 +163,17 @@ export default function SessionPage() {
     <Box sx={{ display: 'flex', height: '100vh', flexDirection: 'column' }}>
       <AppBar position="static" elevation={1} color="default">
         <Toolbar variant="dense">
-          <Typography variant="h6" fontWeight={700} sx={{ mr: 1 }}>
-            Retro
-          </Typography>
-          <Chip label={shortCode} size="small" sx={{ mr: 'auto' }} />
+          <Breadcrumbs sx={{ mr: 'auto' }} aria-label="breadcrumb">
+            <Link component={RouterLink} to="/" underline="hover" color="inherit" variant="body2">
+              Home
+            </Link>
+            <Link component={RouterLink} to="/retro" underline="hover" color="inherit" variant="body2">
+              Retro
+            </Link>
+            <Typography variant="body2" color="text.primary" fontWeight={700}>
+              #{shortCode}
+            </Typography>
+          </Breadcrumbs>
           {isMobile && (
             <IconButton onClick={() => setDrawerOpen(true)}>
               <PeopleIcon />
