@@ -68,6 +68,7 @@ export default function StoryList({ stories, currentStoryId, isHost, onSelectSto
                     />
                   ) : null
                 }
+                secondaryTypographyProps={{ component: 'div' }}
               />
               {isHost && (
                 <Tooltip title="Delete story">
