@@ -55,7 +55,6 @@ export function usePokerVoting(sessionId, currentStoryId) {
 
   const setFinalEstimate = useCallback(async (storyId, estimate) => {
     await update(ref(db, `poker/${sessionId}/stories/${storyId}`), { finalEstimate: estimate });
-    await update(ref(db, `poker/${sessionId}/meta`), { currentStoryId: null, revealed: false });
   }, [sessionId]);
 
   const castVote = useCallback(async (userId, value) => {

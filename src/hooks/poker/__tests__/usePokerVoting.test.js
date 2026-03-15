@@ -117,7 +117,7 @@ describe('usePokerVoting', () => {
     expect(stories[1].order).toBe(2);
   });
 
-  it('setFinalEstimate updates story and resets currentStoryId', async () => {
+  it('setFinalEstimate updates story without resetting currentStoryId', async () => {
     const { result } = renderHook(() => usePokerVoting('s1', 'story1'));
     await act(async () => {
       await result.current.setFinalEstimate('story1', '8');
@@ -126,7 +126,7 @@ describe('usePokerVoting', () => {
       { _path: 'poker/s1/stories/story1' },
       { finalEstimate: '8' }
     );
-    expect(mockUpdate).toHaveBeenCalledWith(
+    expect(mockUpdate).not.toHaveBeenCalledWith(
       { _path: 'poker/s1/meta' },
       { currentStoryId: null, revealed: false }
     );
